@@ -15,10 +15,10 @@ const MAP_CENTER = [20, 10];
 const MAP_ZOOM   = 3;
 
 // Tile layer URL and options
-const TILE_URL = 'https://tiles.stadiamaps.com/tiles/stamen_toner_dark/{z}/{x}/{y}{r}.{ext}';
-const TILE_OPTIONS = {
+    const TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    const TILE_OPTIONS = {
     minZoom: 0,
-    maxZoom: 20,
+    maxZoom: 17,
     attribution: '&copy; Stadia Maps &copy; Stamen Design &copy; OpenMapTiles &copy; OpenStreetMap contributors',
     ext: 'png'
 };
