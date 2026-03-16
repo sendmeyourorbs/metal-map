@@ -22,3 +22,11 @@ function loadData() {
         console.log('Core data loaded');
     });
 }
+function loadBands() {
+    return fetch(DATA_PATHS.bands)
+        .then(r => r.json())
+        .then(bands => {
+            STATE.bands = bands;
+            console.log('Bands loaded:', bands.features.length);
+        });
+}

@@ -1,35 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>METAL MAP</title>
-    <meta charset="UTF-8">
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>METAL MAP</title>
+        <meta charset="UTF-8">
 
-    <!-- External libraries first -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin=""></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/7.8.3/simple-statistics.min.js"></script>
+        <!-- External libraries first -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/7.8.3/simple-statistics.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+        <!-- Our styles -->
+        <link rel="stylesheet" href="css/style.css"/>
+    </head>
+    <body>
+        <div id="map"></div>
 
-    <!-- Our styles -->
-    <link rel="stylesheet" href="css/style.css"/>
-</head>
-<body>
-    <div id="map"></div>
-
-    <!-- Our scripts at bottom of body, in dependency order -->
-    <script src="js/config.js"></script>
-    <script src="js/data.js"></script>
-    <script src="js/sidebar.js"></script>
-    <script src="js/search.js"></script>
-    <script src="js/metalmap.js"></script>
-    <script src="js/main.js"></script>
-    <script>
-    console.log('inline check - buildMap:', typeof buildMap);
-    console.log('inline check - STATE:', typeof STATE);
-    console.log('inline check - L:', typeof L);
-</script>
-</body>
-</html>
+        <!-- Our scripts at bottom of body, in dependency order -->
+        <script src="js/config.js"></script>
+        <script src="js/data.js"></script>
+        <script src="js/searchbar.js"></script>
+        <script src="js/metalmap.js"></script>
+        <script src="js/main.js"></script>
+        <script src="js/sidebarui.js"></script> 
+       <script>
+        console.log('inline check - buildMap:', typeof buildMap);
+        console.log('inline check - STATE:', typeof STATE);
+        console.log('inline check - L:', typeof L);
+    </script>
+    </body>
+    </html>
