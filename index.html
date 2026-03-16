@@ -19,7 +19,16 @@
         <link rel="stylesheet" href="css/style.css"/>
     </head>
     <body>
-        <div id="map"></div>
+        <div id="app">
+    <div id="sidebar">
+            <div id="search-box">
+            <input type="text" id="search-input" placeholder="SEARCH BANDS / COUNTRIES..."/>
+            <div id="search-results"></div>
+        </div>
+        <div id="sidebar-content"></div>
+    </div>
+    <div id="map"></div>
+</div>
 
         <!-- Our scripts at bottom of body, in dependency order -->
         <script src="js/config.js"></script>

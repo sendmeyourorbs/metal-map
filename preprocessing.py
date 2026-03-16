@@ -24,14 +24,11 @@ conn.close()
 print(f"Loaded {len(bands)} bands")
 
 def parse_number(text):
-    """Strips units, commas, and estimates from Factbook strings.
-    e.g. '84,012,284 (2025 est.)' -> 84012284
-         '357,022 sq km'          -> 357022
-    """
     if not text:
         return None
-    # Remove anything in parentheses, then strip units and commas
-    text = re.sub(r'\(.*?\)', '', text)
+    # Take only the first part before semicolon or parenthesis
+    text = text.split(';')[0].split('(')[0]
+    # Remove units and commas
     text = re.sub(r'[^\d.]', '', text)
     if not text:
         return None
@@ -112,13 +109,17 @@ for country, stats in country_stats.items():
     band_count = stats["band_count"]
     population = fb["population"] if fb else None
     area_km2 = fb["area_km2"] if fb else None
+    population = fb["population"] if fb else None
+    area_km2 = fb["area_km2"] if fb else None
+    pop_density = round(population / area_km2, 4) if population and area_km2 else None
 
     countries_output[country] = {
         "band_count": band_count,
         "population": population,
         "area_km2": area_km2,
         "bands_per_million": round((band_count / population) * 1_000_000, 4) if population else None,
-        "bands_per_100k_km2": round((band_count / area_km2) * 100_000, 4) if area_km2 else None,
+        "bands_per_10k_km2": round((band_count / area_km2) * 10_000, 4) if area_km2 else None,
+        "bands_per_pop_density": round(band_count / pop_density, 4) if pop_density else None,
         "themes": dict(stats["themes"]),
         "genres": dict(stats["genres"]),
         "statuses": dict(stats["statuses"]),

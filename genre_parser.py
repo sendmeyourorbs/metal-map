@@ -16,6 +16,8 @@ PRIMARY_MAP = {
     "industrial death metal": "Death Metal",
     "industrial death": "Death Metal",
 
+    "black/death metal": "Black/Death Metal",
+    "death/black metal": "Black/Death Metal",
     # Black Metal family
     "black metal": "Black Metal",
     "black": "Black Metal",
