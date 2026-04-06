@@ -19,9 +19,18 @@ conn.row_factory = sqlite3.Row
 cursor = conn.cursor()
 cursor.execute("SELECT * FROM bands_with_coords")
 bands = cursor.fetchall()
-conn.close()
 
 print(f"Loaded {len(bands)} bands")
+def clean_location(location):
+    if not location or location == 'N/A':
+        return None
+    # Take only the first location before semicolon
+    location = location.split(';')[0]
+    # Take only the first location before slash
+    location = location.split(' / ')[0]
+    # Remove (early), (later), (early-mid) etc.
+    location = re.sub(r'\(.*?\)', '', location)
+    return location.strip() or None
 
 def parse_number(text):
     if not text:
@@ -62,6 +71,14 @@ for country, entry in COUNTRY_MAP.items():
 
 print(f"Loaded Factbook data for {len(factbook_data)} countries")
 
+def clean_location(location):
+    if not location or location == 'N/A':
+        return None
+    # Take only the first location before semicolon or slash
+    location = location.split(';')[0].split(' / ')[0]
+    # Remove (early), (later), (early-mid) etc.
+    location = re.sub(r'\(.*?\)', '', location)
+    return location.strip() or None
 # --- Aggregate bands per country ---
 from collections import defaultdict
 
@@ -130,6 +147,44 @@ with open(os.path.join(OUTPUT_DIR, "countries.json"), "w", encoding="utf-8") as 
     json.dump(countries_output, f, ensure_ascii=False)
 
 print(f"Written countries.json with {len(countries_output)} entries")
+## --- Build cities.json ---
+cities = {}
+
+for band in bands:
+    location = clean_location(band["location"])
+    if not location or location == 'N/A':
+        continue
+    if band["latitude"] is None or band["longitude"] is None:
+        continue
+    
+    country = band["country_of_origin"]
+    key = f"{location}|{country}"
+    
+    if key not in cities:
+        cities[key] = {
+            "location": location,
+            "country": country,
+            "lat": band["latitude"],
+            "lng": band["longitude"],
+            "band_count": 0,
+            "bands": []
+        }
+    
+    cities[key]["band_count"] += 1
+    cities[key]["bands"].append({
+        "name": band["band_name"],
+        "url": band["url"],
+        "genre": band["genre"],
+        "themes": band["lyrical_themes"],
+        "formed": band["formed_in"],
+        "status": band["status"]
+    })
+
+with open(os.path.join(OUTPUT_DIR, "cities.json"), "w", encoding="utf-8") as f:
+    json.dump(cities, f, ensure_ascii=False)
+
+print(f"Written cities.json with {len(cities)} cities")
+
 
 # --- Build themes.json (global theme frequencies) ---
 global_themes = defaultdict(int)
@@ -196,3 +251,7 @@ with open(os.path.join(OUTPUT_DIR, "bands.geojson"), "w", encoding="utf-8") as f
     json.dump(geojson, f, ensure_ascii=False)
 
 print(f"Written bands.geojson with {len(features)} features")
+
+
+
+conn.close()
