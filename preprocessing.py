@@ -5,7 +5,29 @@ import re
 from country_map import COUNTRY_MAP
 from genre_parser import parse_genre
 from theme_normalizer import parse_themes
-
+COORD_OVERRIDES = {
+    ("Gothenburg, Västra Götaland", "Sweden"):          (57.70716, 11.96679),
+    ("St. Petersburg", "Russia"):                        (59.93900, 30.31600),
+    ("Cologne, North Rhine-Westphalia", "Germany"):      (50.93333, 6.95000),
+    ("Hanover, Lower Saxony", "Germany"):                (52.37052, 9.73322),
+    ("England", "United Kingdom"):                       (52.16045, -0.70312),
+    ("Brno, South Moravian Region", "Czechia"):          (49.19522, 16.60796),
+    ("Padua, Veneto", "Italy"):                          (45.40797, 11.88586),
+    ("Seville, Andalusia", "Spain"):                     (37.38283, -5.97317),
+    ("Panama City, Panamá", "Panama"):                   (8.99360, -79.51973),
+    ("Brunswick, Lower Saxony", "Germany"):              (52.26594, 10.52720),
+    ("Ghent, East Flanders", "Belgium"):                 (51.05000, 3.71667),
+    ("Scotland", "United Kingdom"):                      (56.49067, -4.20260),
+    ("Ontario", "Canada"):                               (43.65000, -79.38300),
+    ("Antwerp", "Belgium"):                              (51.22047, 4.40026),
+    ("Antwerp, Antwerp", "Belgium"):                     (51.22047, 4.40026),
+    ("Marburg, Hesse", "Germany"):                       (50.80904, 8.77069),
+    ("Geneva", "Switzerland"):                           (46.20222, 6.14569),
+    ("Colorado", "United States"):                       (39.00000, -105.50000),
+    ("Maryland", "United States"):                       (39.00000, -76.80000),
+    ("Arizona", "United States"):                        (34.00000, -111.50000),
+    ("Texas", "United States"):                          (31.00000, -100.00000),
+}
 # --- Config ---
 DB_PATH = "bands_with_coords.db"
 FACTBOOK_PATH = "factbook.json"
@@ -21,16 +43,18 @@ cursor.execute("SELECT * FROM bands_with_coords")
 bands = cursor.fetchall()
 
 print(f"Loaded {len(bands)} bands")
-def clean_location(location):
+def clean_location(location, known_countries):
     if not location or location == 'N/A':
         return None
-    # Take only the first location before semicolon
     location = location.split(';')[0]
-    # Take only the first location before slash
-    location = location.split(' / ')[0]
-    # Remove (early), (later), (early-mid) etc.
-    location = re.sub(r'\(.*?\)', '', location)
-    return location.strip() or None
+    location = re.split(r'\s*/\s*', location)[0]
+    location = re.sub(r'\([^)]*\)?', '', location)  # remove (text) or (text
+    location = re.sub(r'\w+\)', '', location)  # remove word) leftovers
+    location = location.strip().strip(',').strip()
+    parts = [p.strip() for p in location.split(',')]
+    if len(parts) > 1 and parts[-1] in known_countries:
+        parts = parts[:-1]
+    return ', '.join(parts).strip() or None
 
 def parse_number(text):
     if not text:
@@ -71,14 +95,7 @@ for country, entry in COUNTRY_MAP.items():
 
 print(f"Loaded Factbook data for {len(factbook_data)} countries")
 
-def clean_location(location):
-    if not location or location == 'N/A':
-        return None
-    # Take only the first location before semicolon or slash
-    location = location.split(';')[0].split(' / ')[0]
-    # Remove (early), (later), (early-mid) etc.
-    location = re.sub(r'\(.*?\)', '', location)
-    return location.strip() or None
+
 # --- Aggregate bands per country ---
 from collections import defaultdict
 
@@ -117,6 +134,7 @@ for band in bands:
 
 print(f"Aggregated stats for {len(country_stats)} countries")
 
+
 # --- Build countries.json ---
 countries_output = {}
 
@@ -147,29 +165,40 @@ with open(os.path.join(OUTPUT_DIR, "countries.json"), "w", encoding="utf-8") as 
     json.dump(countries_output, f, ensure_ascii=False)
 
 print(f"Written countries.json with {len(countries_output)} entries")
-## --- Build cities.json ---
+known_countries = set(row['country_of_origin'] for row in cursor.execute("SELECT DISTINCT country_of_origin FROM bands_with_coords").fetchall())
+# --- Build cities.json ---
 cities = {}
 
 for band in bands:
-    location = clean_location(band["location"])
+    location = clean_location(band["location"], known_countries)
     if not location or location == 'N/A':
         continue
-    if band["latitude"] is None or band["longitude"] is None:
-        continue
-    
+
     country = band["country_of_origin"]
+
+    # Determine coordinates
+    if band["geo_match_type"] in ('asciiname_only', 'name_only'):
+        override = COORD_OVERRIDES.get((location, country))
+        if not override:
+            continue  # skip unreliable geocodes with no manual override
+        lat, lng = override
+    else:
+        if band["latitude"] is None or band["longitude"] is None:
+            continue
+        lat, lng = band["latitude"], band["longitude"]
+
     key = f"{location}|{country}"
-    
+
     if key not in cities:
         cities[key] = {
             "location": location,
             "country": country,
-            "lat": band["latitude"],
-            "lng": band["longitude"],
+            "lat": lat,
+            "lng": lng,
             "band_count": 0,
             "bands": []
         }
-    
+
     cities[key]["band_count"] += 1
     cities[key]["bands"].append({
         "name": band["band_name"],
@@ -184,7 +213,6 @@ with open(os.path.join(OUTPUT_DIR, "cities.json"), "w", encoding="utf-8") as f:
     json.dump(cities, f, ensure_ascii=False)
 
 print(f"Written cities.json with {len(cities)} cities")
-
 
 # --- Build themes.json (global theme frequencies) ---
 global_themes = defaultdict(int)
@@ -213,6 +241,25 @@ with open(os.path.join(OUTPUT_DIR, "timeline.json"), "w", encoding="utf-8") as f
     json.dump(global_years_sorted, f, ensure_ascii=False)
 
 print(f"Written timeline.json with {len(global_years_sorted)} years")
+# --- Build genre_timeline.json ---
+genre_timeline = defaultdict(lambda: defaultdict(int))
+
+for band in bands:
+    if not band["formed_in"] or band["formed_in"] == "N/A":
+        continue
+    primary_genres, _ = parse_genre(band["genre"])
+    for genre in primary_genres:
+        genre_timeline[genre][band["formed_in"]] += 1
+
+# Convert to regular dicts and sort years
+genre_timeline_output = {}
+for genre, years in genre_timeline.items():
+    genre_timeline_output[genre] = dict(sorted(years.items()))
+
+with open(os.path.join(OUTPUT_DIR, "genre_timeline.json"), "w", encoding="utf-8") as f:
+    json.dump(genre_timeline_output, f, ensure_ascii=False)
+
+print(f"Written genre_timeline.json with {len(genre_timeline_output)} genres")
 
 # --- Build bands.geojson ---
 features = []

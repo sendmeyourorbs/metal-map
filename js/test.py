@@ -1,16 +1,18 @@
-import json
+import sqlite3
 
-with open("data/countries.json") as f:
-    countries = json.load(f)
+conn = sqlite3.connect("bands_with_coords.db")
+conn.row_factory = sqlite3.Row
+cursor = conn.cursor()
 
-metrics = ["band_count", "bands_per_million", "bands_per_10k_km2", "bands_per_pop_density"]
+cursor.execute("""
+    SELECT country_of_origin, COUNT(*) as count
+    FROM bands_with_coords
+    WHERE LOWER(band_name) LIKE '%goat%'
+    GROUP BY country_of_origin
+    ORDER BY count DESC
+""")
 
-for metric in metrics:
-    print(f"\nTop 10 by {metric}:")
-    sorted_countries = sorted(
-        [(name, c[metric]) for name, c in countries.items() if c[metric]],
-        key=lambda x: x[1],
-        reverse=True
-    )[:10]
-    for name, value in sorted_countries:
-        print(f"  {name}: {value}")
+for row in cursor.fetchall():
+    print(f"{row['country_of_origin']}: {row['count']}")
+
+conn.close()

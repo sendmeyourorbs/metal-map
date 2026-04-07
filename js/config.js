@@ -29,5 +29,13 @@ const DATA_PATHS = {
     world:     'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
     bands:     'data/bands.geojson',
     themes:    'data/themes.json',
-    timeline:  'data/timeline.json'
+    timeline:  'data/timeline.json',
+    cities:    'data/cities.json',
+    genre_timeline: 'data/genre_timeline.json'
+};
+
+const COUNTRY_CENTERS = {
+    "United States": [39.5, -98.35],
+    "Russia":        [61.52, 105.31],
+    "France":        [46.23, 2.21],  // France has overseas territories too
 };

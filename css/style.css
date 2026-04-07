@@ -11,8 +11,11 @@ body { margin: 0; padding: 0; }
     min-width: 300px;
     background: #111;
     color: #e0e0e0;
-    overflow-y: auto;
     z-index: 1000;
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    overflow: hidden;
 }
 
 #map {
@@ -27,23 +30,30 @@ body { margin: 0; padding: 0; }
     padding: 16px;
     border-bottom: 1px solid #333;
     letter-spacing: 2px;
+    font-family: 'MedievalSharp', cursive;
 }
 
 .stat-block {
     padding: 16px;
     border-bottom: 1px solid #333;
+    font-family: 'MedievalSharp', cursive;
+
 }
 
 .stat-number {
     font-size: 32px;
     font-weight: bold;
     color: #c0392b;
+    font-family: 'MedievalSharp', cursive;
+
 }
 
 .stat-label {
     font-size: 11px;
     color: #888;
     letter-spacing: 1px;
+    font-family: 'MedievalSharp', cursive;
+
 }
 
 .section-title {
@@ -53,6 +63,8 @@ body { margin: 0; padding: 0; }
     color: #888;
     background: #1a1a1a;
     border-bottom: 1px solid #333;
+    font-family: 'MedievalSharp', cursive;
+
 }
 
 .country-row, .theme-row, .genre-row {
@@ -62,6 +74,8 @@ body { margin: 0; padding: 0; }
     border-bottom: 1px solid #222;
     font-size: 12px;
     cursor: pointer;
+    font-family: 'MedievalSharp', cursive;
+
 }
 
 .country-row:hover {
@@ -131,4 +145,76 @@ body { margin: 0; padding: 0; }
 
 .result-type {
     margin-right: 6px;
+}
+
+.band-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 16px;
+    border-bottom: 1px solid #222;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.band-row:hover {
+    background: #1a1a1a;
+}
+
+.band-status {
+    color: #888;
+    font-size: 10px;
+}
+
+#chart-panel {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 320px;
+    right: 20px;
+    height: 550px;
+    background: #111;
+    border: 1px solid #333;
+    padding: 16px;
+    z-index: 2000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+}
+#chart-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 2px;
+    font-size: 16px;
+}
+
+#chart-panel-close {
+    cursor: pointer;
+    color: #888;
+    font-size: 14px;
+}
+
+#chart-panel-close:hover {
+    color: #c0392b;
+}
+
+#chart-panel-title {
+    color: #e0e0e0;
+}
+
+
+#sword-strip {
+    width: 30px;
+    min-width: 30px;
+    height: 100vh;
+    object-fit: cover;
+    opacity: 0.3;
+}
+
+#sidebar-inner {
+    flex: 1;
+    overflow-y: auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
