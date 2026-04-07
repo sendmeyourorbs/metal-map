@@ -46,7 +46,7 @@ const clusterGroup = L.markerClusterGroup({
     iconCreateFunction: cluster => {
         const markers = cluster.getAllChildMarkers();
         const total = markers.reduce((sum, m) => sum + m.bandCount, 0);
-        const size = total > 1000 ? 44 : total > 100 ? 36 : 28;
+        const size = 49;
         return L.divIcon({
             html: `<div style="width:${size}px;height:${size}px;line-height:${size}px;text-align:center;background:rgba(192,57,43,0.8);border-radius:50%;color:white;font-size:11px;">${total.toLocaleString()}</div>`,
             className: '',
@@ -57,7 +57,7 @@ const clusterGroup = L.markerClusterGroup({
     for (let city of Object.values(STATE.cities)) {
         const key = `${city.location}|${city.country}`;
         const marker = L.circleMarker([city.lat, city.lng], {
-            radius: 8,
+            radius: 16,
             fillColor: '#c0392b',
             color: '#000',
             weight: 1,
